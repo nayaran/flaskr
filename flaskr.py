@@ -16,6 +16,7 @@ PASSWORD = 'default'
 app = Flask(__name__)
 app.config.from_object(__name__)
 
+
 def connect_db():
       """
       Connects to the DATABASE db
@@ -97,6 +98,7 @@ def add_entry():
       g.db.commit()
       flash('New entry was successfully posted')
       return redirect(url_for('show_entries'))
+
 
 if __name__ == '__main__':
       """
