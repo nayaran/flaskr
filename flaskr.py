@@ -6,7 +6,7 @@ from contextlib import closing
 
 
 # configuration
-DATABASE = '/tmp/flaskr.db'
+DATABASE = '/var/www/flaskr/flaskr/db/flaskr.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
@@ -31,6 +31,7 @@ def init_db():
             with app.open_resource('schema.sql', mode='r') as f:
                   db.cursor().executescript(f.read())
             db.commit()
+
 
 @app.before_request
 def before_request():
