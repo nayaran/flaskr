@@ -5,3 +5,5 @@ import os
 if not os.path.isfile("/var/www/flaskr/flaskr/db/flaskr.db"):
       print 'initialing the db...'
       flaskr.init_db()
+
+
