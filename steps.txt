@@ -1,0 +1,76 @@
+Checklist on new ec2 instance
+-----------------------------
+
+-ssh
+	ssh -i ~/.ssh/sample-key.pem ubuntu@ec2-52-6-147-195.compute-1.amazonaws.com
+
+-installing prerequisites
+	sudo apt-get install apache2 python-pip git libapache2-mod-wsgi
+	sudo pip install Flask boto
+
+
+-setup ssh-agent key forwarding
+	$ cat /etc/ssh_config
+	# Print out the /etc/ssh_config file
+	 Host *
+	   SendEnv LANG LC_*
+	   ForwardAgent no
+
+-set permissions for /var/www
+ 	sudo groupadd www
+ 	sudo usermod -a -G www ubuntu
+ 	sudo usermod -a -G www www-data
+ 	sudo usermod -a -G www-data ubuntu
+	sudo chown -R root:www /var/www
+	sudo chmod 2775 /var/www
+	find /var/www -type d -exec sudo chmod 2775 {} +
+	find /var/www -type f -exec sudo chmod 0664 {} +
+
+-logout and login again
+
+-git clone
+	cd /var/www
+	git clone git@github.com:nayaran/flaskr.git
+
+-initialize db
+	cd flaskr
+	python -c "import flaskr; flaskr.init_db()"
+	find /var/www -type f -exec sudo chmod 0664 {} +
+
+-copy apache2 sites config
+	sudo chown -R root:www /var/www
+	cd /var/www/flaskr/
+	sudo cp flaskr/flaskr.conf /etc/apache2/sites-available/
+
+-update apache sites
+	sudo a2dissite 000-default.conf
+	sudo a2ensite flaskr.conf
+	sudo service apache2 restart
+
+#optional
+-update hosts file
+	echo "127.0.0.1 flaskr.app www.flaskr.app" | sudo tee -a /etc/hosts
+
+
+----------------------------
+ansible
+	cd /home/narayan/vagrant/vagrant_getting_started
+	cat playbook.yml
+		---
+		- hosts: all
+		  tasks:
+		    - name: Installs tree
+		      sudo: yes
+		      apt: pkg=tree state=installed update_cache=true
+
+	cat VagrantFile
+		config.vm.provision "ansible" do |ansible|
+			ansible.playbook = "playbook.yml"
+
+	ansible-playbook -vvvv -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory --private-key=.vagrant/machines/default/virtualbox/private_key playbook.yml -u vagrant
+
+----------------------------
+vagrant
+	cd /home/narayan/vagrant/vagrant_getting_started
+	vagrant up
+	vagrant reload --provision --provision-with ansible
